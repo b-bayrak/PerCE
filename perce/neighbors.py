@@ -71,11 +71,7 @@ def find_candidate(
     return X_target[best_idx].copy()
 
 
-# ──────────────────────────────────────────────────────────────────────
 # DTW implementation
-# ──────────────────────────────────────────────────────────────────────
-
-
 def _multivariate_dtw(
     X: np.ndarray,
     Y: np.ndarray,

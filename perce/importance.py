@@ -12,11 +12,7 @@ from typing import Callable, Optional
 import numpy as np
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Channel-level importance
-# ──────────────────────────────────────────────────────────────────────
-
-
 def channel_importance(
     model: Callable,
     X: np.ndarray,
@@ -67,11 +63,7 @@ def channel_importance(
     return importance
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Segment-level importance
-# ──────────────────────────────────────────────────────────────────────
-
-
 def segment_importance(
     model: Callable,
     X: np.ndarray,
@@ -120,11 +112,6 @@ def segment_importance(
         importance[s] = base_score - perturbed_score
 
     return importance
-
-
-# ──────────────────────────────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────────────────────────────
 
 
 def _model_score(model: Callable, X: np.ndarray) -> float:

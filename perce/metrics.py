@@ -21,11 +21,7 @@ from .neighbors import _multivariate_dtw
 from .importance import _segment_boundaries
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Proximity
-# ──────────────────────────────────────────────────────────────────────
-
-
 def proximity(
     X_original: np.ndarray,
     X_cf: np.ndarray,
@@ -90,11 +86,7 @@ def sparsity(
     return 1.0 - (n_modified / n_segments)
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Validity
-# ──────────────────────────────────────────────────────────────────────
-
-
 def validity(
     X_cf: np.ndarray,
     model: Callable,
@@ -121,11 +113,7 @@ def validity(
     return pred == target_class
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Diversity
-# ──────────────────────────────────────────────────────────────────────
-
-
 def diversity(
     counterfactuals: np.ndarray,
     dtw_window: float = 0.1,
@@ -160,11 +148,7 @@ def diversity(
     return total / count if count > 0 else 0.0
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Batch evaluation summary
-# ──────────────────────────────────────────────────────────────────────
-
-
 def evaluate_batch(results: list, dtw_window: float = 0.1) -> dict:
     """Compute aggregate evaluation metrics over a list of CounterfactualResults.
 

@@ -1,4 +1,4 @@
-# PerCE — Hierarchical Perturbation-Based Counterfactual Explanations
+# PerCE: Hierarchical Perturbation-Based Counterfactual Explanations
 
 [![PyPI version](https://img.shields.io/pypi/v/perce.svg)](https://pypi.org/project/perce/)
 [![Python 3.9+](https://img.shields.io/pypi/pyversions/perce.svg)](https://pypi.org/project/perce/)
@@ -6,15 +6,15 @@
 [![CI](https://github.com/b-bayrak/PerCE/actions/workflows/ci.yml/badge.svg)](https://github.com/b-bayrak/PerCE/actions)
 [![IEEE Access](https://img.shields.io/badge/IEEE%20Access-10.1109%2FACCESS.2025.3639125-blue)](https://doi.org/10.1109/ACCESS.2025.3639125)
 
-**PerCE** generates plausible counterfactual explanations for multivariate time series classification — no Java, no CBR server, just pure Python.
+**PerCE** generates plausible counterfactual explanations for multivariate time series classification.
 
 > *"What minimal change to this ECG would cause the model to predict a different diagnosis?"*
 
-PerCE answers that question using a **hierarchical perturbation strategy** guided by permutation-based feature importance, operating at both temporal-segment and channel levels. It anchors every counterfactual to a real training instance (*InSample*), guaranteeing physiologically plausible results.
+PerCE answers that question using a **hierarchical perturbation strategy** guided by permutation-based feature importance, operating at both temporal-segment and channel levels. It anchors every counterfactual to a real training instance (*InSample*), enabling physiologically plausible results.
 
 ---
 
-## 📄 Paper
+## Paper
 
 > **Bayrak, B. & Bach, K. (2025).** PerCE: Hierarchical Perturbation-Based Counterfactual Explanations for Multivariate Time Series Classification. *IEEE Access*. [DOI: 10.1109/ACCESS.2025.3639125](https://doi.org/10.1109/ACCESS.2025.3639125)
 
@@ -33,9 +33,19 @@ If you use PerCE in your work, please cite:
 
 ---
 
-## ✨ Key Results
+## Key Results
 
 Evaluated on the open [CODE-test ECG dataset](https://zenodo.org/records/3765780) (827 12-lead recordings, cardiologist-annotated), PerCE substantially outperforms the InSample baseline:
+
+```python
+from perce import evaluate_batch
+
+summary = evaluate_batch(results)
+print(f"Validity:  {summary['validity_rate']:.2%}")
+print(f"Proximity: {summary['proximity_mean']:.3f} ± {summary['proximity_std']:.3f}")
+print(f"Sparsity:  {summary['sparsity_mean']:.3f} ± {summary['sparsity_std']:.3f}")
+print(f"Diversity: {summary['diversity']:.3f}")
+```
 
 | Metric | InSample baseline | **PerCE** | Improvement |
 |--------|:-----------------:|:---------:|:-----------:|
@@ -48,7 +58,7 @@ Evaluated on the open [CODE-test ECG dataset](https://zenodo.org/records/3765780
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ```bash
 pip install perce
@@ -64,13 +74,13 @@ pip install "perce[ecg]"
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ```python
 import numpy as np
 from perce import PerCEExplainer
 
-# ── 1. Wrap your model ─────────────────────────────────────────────────
+# 1. Wrap your model
 #    Must accept (N, C, T) and return (N,) class predictions
 def my_model(X):
     # PyTorch example:
@@ -79,7 +89,7 @@ def my_model(X):
     #     return net(torch.tensor(X)).argmax(dim=1).numpy()
     return np.zeros(len(X), dtype=int)   # stub
 
-# ── 2. Fit (store training data for InSample candidate selection) ──────
+# 2. Fit (store training data for InSample candidate selection) 
 exp = PerCEExplainer(
     model=my_model,
     n_segments=10,   # divide each time series into 10 segments
@@ -89,11 +99,11 @@ exp = PerCEExplainer(
 )
 exp.fit(X_train, y_train)   # X_train shape: (N, C, T)
 
-# ── 3. Explain a single instance ──────────────────────────────────────
+# 3. Explain a single instance
 result = exp.explain(X_query, target_class=1)   # X_query shape: (C, T)
 print(result.summary())
 
-# ── 4. Access everything ──────────────────────────────────────────────
+# 4. Access everything 
 cf  = result.counterfactual       # shape (C, T) — the explanation
 print("Valid?    ", result.is_valid)
 print("Proximity:", result.proximity_score)
@@ -114,7 +124,7 @@ print(f"Proximity:     {summary['proximity_mean']:.3f} ± {summary['proximity_st
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 PerCE follows a three-stage hierarchical algorithm:
 
@@ -141,50 +151,39 @@ Query X (C channels × T time points)
              Counterfactual X' ← real ECG pattern,
              minimal changes, high validity
 ```
+---
 
-**Why hierarchical?** Traditional perturbation methods modify all features blindly. PerCE focuses on the most informative channels and time windows first — producing sparser, more clinically meaningful explanations.
+**Why hierarchical?**
+> Traditional perturbation methods modify all features blindly. PerCE focuses on the most informative channels and time windows first, this facilitates producing sparser, more clinically meaningful explanations.
 
-**Why InSample?** By anchoring to real training instances, every generated counterfactual is guaranteed to be within the data distribution. No out-of-distribution artifacts.
+**Why InSample?** 
+> By anchoring to real training instances, every generated counterfactual is guaranteed to be within the data distribution. No out-of-distribution artifacts.
 
 ---
 
-## 📊 Evaluation with CEval
-
-PerCE is designed to work seamlessly with the [CEval toolkit](https://pypi.org/project/CEval/) — the companion evaluation framework from the same lab:
-
-```python
-# pip install CEval
-from perce import evaluate_batch
-summary = evaluate_batch(results)
-```
-
-See **[`notebooks/03_CEval_evaluation.ipynb`](notebooks/03_CEval_evaluation.ipynb)** for a full walkthrough.
-
----
-
-## 📓 Notebooks
+## Notebooks
 
 | Notebook | Description |
 |----------|-------------|
 | [`01_ECG_demo.ipynb`](notebooks/01_ECG_demo.ipynb) | Full pipeline on CODE-test — reproduces Table 1 from paper |
 | [`02_custom_model.ipynb`](notebooks/02_custom_model.ipynb) | How to plug in your own PyTorch / sklearn model |
-| [`03_CEval_evaluation.ipynb`](notebooks/03_CEval_evaluation.ipynb) | Comprehensive evaluation using the CEval toolkit |
+| [`03_evaluation.ipynb`](notebooks/03_evaluation.ipynb) | Comprehensive evaluation |
 
 ---
 
-## 🔗 Related Packages
+## Related Packages
 
 This package is part of a growing XAI ecosystem from NTNU's NorwAI Centre:
 
-| Package | What it does | Paper |
-|---------|-------------|-------|
-| **[PerCE](https://pypi.org/project/perce/)** ← *this* | Counterfactual explanations for **time series** | [IEEE Access 2025](https://doi.org/10.1109/ACCESS.2025.3639125) |
+| Package                                                    | What it does | Paper |
+|------------------------------------------------------------|-------------|-------|
+| **[PerCE](https://pypi.org/project/perce/)**               | Counterfactual explanations for **time series** | [IEEE Access 2025](https://doi.org/10.1109/ACCESS.2025.3639125) |
 | **[PertCF](https://github.com/b-bayrak/PertCF-Explainer)** | Counterfactual explanations for **tabular data** | [SGAI 2023](https://doi.org/10.1007/978-3-031-47994-6_13) |
-| **[CEval](https://pypi.org/project/CEval/)** | Evaluation framework for **any** counterfactual method | [IEEE Access 2024](https://doi.org/10.1109/ACCESS.2024.3466475) |
+| **[CEval](https://pypi.org/project/CEval/)**               | Evaluation framework for **any** counterfactual method | [IEEE Access 2024](https://doi.org/10.1109/ACCESS.2024.3466475) |
 
 ---
 
-## 🗂️ Repository Structure
+## Repository Structure
 
 ```
 perce/
@@ -198,7 +197,7 @@ perce/
 ├── notebooks/
 │   ├── 01_ECG_demo.ipynb
 │   ├── 02_custom_model.ipynb
-│   └── 03_CEval_evaluation.ipynb
+│   └── 03_evaluation.ipynb
 ├── tests/
 │   └── test_perce.py
 ├── pyproject.toml
@@ -207,7 +206,7 @@ perce/
 
 ---
 
-## 📋 API Reference
+## API Reference
 
 ### `PerCEExplainer`
 
@@ -234,7 +233,7 @@ perce/
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 git clone https://github.com/b-bayrak/PerCE
@@ -245,12 +244,12 @@ pytest tests/ -v
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 This work was supported by the Research Council of Norway through the **SFI NorwAI** (Norwegian Research Center for AI Innovation), grant number 309834.
 
 ---
 
-## 📜 License
+## License
 
-MIT © Betül Bayrak, Kerstin Bach — Norwegian University of Science and Technology (NTNU)
+MIT © Betül Bayrak

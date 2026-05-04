@@ -1,7 +1,7 @@
 """
 Test suite for PerCE.
 
-Uses synthetic data so tests run without downloading the CODE-test dataset.
+Uses synthetic data so tests run without downloading the dataset.
 """
 
 import numpy as np
@@ -21,10 +21,6 @@ from perce import (
 )
 
 
-# ──────────────────────────────────────────────────────────────────────
-# Fixtures
-# ──────────────────────────────────────────────────────────────────────
-
 C, T = 4, 200      # small for fast tests
 N_TRAIN = 40
 
@@ -39,7 +35,7 @@ def synthetic_data():
 
 
 def make_model(target_pred=0):
-    """Deterministic stub model that always predicts `target_pred`."""
+    """ Deterministic stub model that always predicts `target_pred`."""
     def model(X):
         N = len(X)
         out = np.zeros((N, 2), dtype=float)
@@ -49,7 +45,7 @@ def make_model(target_pred=0):
 
 
 def make_flip_model(threshold=0.0):
-    """Model that flips class based on mean of first channel."""
+    """ Model that flips class based on mean of first channel."""
     def model(X):
         X = np.asarray(X)
         N = X.shape[0]
@@ -59,10 +55,8 @@ def make_flip_model(threshold=0.0):
     return model
 
 
-# ──────────────────────────────────────────────────────────────────────
-# PerCEExplainer
-# ──────────────────────────────────────────────────────────────────────
 
+# PerCEExplainer
 class TestPerCEExplainer:
 
     def test_fit_returns_self(self, synthetic_data):
@@ -128,10 +122,7 @@ class TestPerCEExplainer:
         assert "PerCEExplainer" in repr(exp)
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Metrics
-# ──────────────────────────────────────────────────────────────────────
-
 class TestMetrics:
 
     def test_proximity_identical(self):
@@ -190,10 +181,7 @@ class TestMetrics:
         assert 0.0 <= summary["validity_rate"] <= 1.0
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Importance
-# ──────────────────────────────────────────────────────────────────────
-
 class TestImportance:
 
     def test_channel_importance_shape(self):
@@ -222,10 +210,8 @@ class TestImportance:
         assert imp[0] != imp[-1] or not np.allclose(imp, imp[0])
 
 
-# ──────────────────────────────────────────────────────────────────────
-# DTW
-# ──────────────────────────────────────────────────────────────────────
 
+# DTW
 class TestDTW:
 
     def test_dtw_self_distance(self):

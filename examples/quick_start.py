@@ -1,5 +1,5 @@
 """
-PerCE Quick Start — 30-second demo with synthetic data.
+PerCE Quick Start Example
 
 Run:  python examples/quick_start.py
 
@@ -10,7 +10,7 @@ No downloads required. Shows the full pipeline:
 import numpy as np
 from perce import PerCEExplainer, evaluate_batch
 
-# ── Synthetic data ────────────────────────────────────────────────────
+# Synthetic data
 # 6 channels, 300 time points, binary labels based on mean of channel 0
 rng = np.random.default_rng(0)
 N, C, T = 80, 6, 300
@@ -18,17 +18,16 @@ N, C, T = 80, 6, 300
 X_train = rng.normal(0, 1, (N, C, T)).astype(np.float32)
 y_train = (X_train[:, 0, 50:150].mean(axis=1) > 0).astype(int)
 
-X_test  = rng.normal(0, 1, (20, C, T)).astype(np.float32)
-y_test  = (X_test[:, 0, 50:150].mean(axis=1) > 0).astype(int)
+X_test = rng.normal(0, 1, (20, C, T)).astype(np.float32)
+y_test = (X_test[:, 0, 50:150].mean(axis=1) > 0).astype(int)
 
-# ── Simple model (swap for your real one) ────────────────────────────
+# Swap with your model.
 def my_model(X_np: np.ndarray) -> np.ndarray:
     """Model callable: (N, C, T) → (N, n_classes) probabilities."""
     means = X_np[:, 0, 50:150].mean(axis=1)
     p1 = 1.0 / (1.0 + np.exp(-2 * means))   # sigmoid
     return np.stack([1 - p1, p1], axis=1)
 
-# ── Fit ───────────────────────────────────────────────────────────────
 print("Fitting PerCEExplainer...")
 explainer = PerCEExplainer(
     model=my_model,
@@ -41,8 +40,7 @@ explainer = PerCEExplainer(
 explainer.fit(X_train, y_train)
 print(explainer)
 
-# ── Explain a single instance ─────────────────────────────────────────
-query        = X_test[0]
+query = X_test[0]
 target_class = 1 - int(y_test[0])   # flip the predicted class
 
 print(f"\nGenerating counterfactual for target class {target_class}...")
@@ -52,7 +50,7 @@ print("\n" + result.summary())
 print(f"\nChannels modified : {result.channels_modified}")
 print(f"Segments modified : {len(result.segments_modified)}")
 
-# ── Batch explanation + evaluation ────────────────────────────────────
+
 print("\nRunning batch explanation on 20 test instances...")
 results = explainer.explain_batch(
     X_test,

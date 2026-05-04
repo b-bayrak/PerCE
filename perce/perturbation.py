@@ -67,11 +67,11 @@ def hierarchical_perturb(
     channels_modified = []
     segments_modified = []
 
-    # ── Sort channels by importance ────────────────────────────────────
+    # Sort channels by importance
     ch_order = np.argsort(ch_importance)[::-1]    # highest first
     seg_order = np.argsort(seg_importance)[::-1]  # highest first (global)
 
-    # ── Phase 1: Segment-wise perturbation ─────────────────────────────
+    # Phase 1: Segment-wise perturbation
     for c in ch_order:
         channel_modified_this_round = False
 
@@ -112,7 +112,7 @@ def hierarchical_perturb(
         if _predict_single(model, cf) == target_class:
             return cf, channels_modified, segments_modified
 
-    # ── Phase 2: Channel-wise refinement (fallback) ────────────────────
+    # Phase 2: Channel-wise refinement (fallback)
     # If segment-level wasn't enough, try full-channel interpolation
     for c in ch_order:
         cf_trial = cf.copy()
@@ -133,11 +133,7 @@ def hierarchical_perturb(
     return cf, channels_modified, segments_modified
 
 
-# ──────────────────────────────────────────────────────────────────────
 # Helpers
-# ──────────────────────────────────────────────────────────────────────
-
-
 def _predict_single(model: Callable, X: np.ndarray) -> int:
     """Predict class for a single (C, T) instance."""
     out = np.asarray(model(X[np.newaxis])).ravel()

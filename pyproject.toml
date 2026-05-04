@@ -9,9 +9,7 @@ description = "Hierarchical Perturbation-Based Counterfactual Explanations for M
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
-    { name = "Betül Bayrak", email = "betul.bayrak@ntnu.no" },
-    { name = "Kerstin Bach",  email = "kerstin.bach@ntnu.no" },
-]
+    { name = "Betül Bayrak", email = "betul.bayrak@ntnu.no" }, ]
 keywords = [
     "explainable-ai", "xai", "counterfactual-explanations",
     "time-series", "ecg", "multivariate", "perturbation",
