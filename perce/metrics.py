@@ -13,12 +13,12 @@ Metrics:
 
 from __future__ import annotations
 
-from typing import Callable, List
+from typing import Callable
 
 import numpy as np
 
-from .neighbors import _multivariate_dtw
 from .importance import _segment_boundaries
+from .neighbors import _multivariate_dtw
 
 
 # Proximity

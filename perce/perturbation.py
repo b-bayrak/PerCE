@@ -73,8 +73,6 @@ def hierarchical_perturb(
 
     # Phase 1: Segment-wise perturbation
     for c in ch_order:
-        channel_modified_this_round = False
-
         for s in seg_order:
             start, end = boundaries[s]
 
@@ -92,7 +90,6 @@ def hierarchical_perturb(
                 cf = cf_trial
                 if c not in channels_modified:
                     channels_modified.append(int(c))
-                    channel_modified_this_round = True
                 segments_modified.append((int(c), int(s)))
                 return cf, channels_modified, segments_modified
             else:
@@ -105,7 +102,6 @@ def hierarchical_perturb(
                     cf = cf_trial
                     if c not in channels_modified:
                         channels_modified.append(int(c))
-                        channel_modified_this_round = True
                     segments_modified.append((int(c), int(s)))
 
         # After trying all segments for this channel, check again

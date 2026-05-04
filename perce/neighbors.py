@@ -8,7 +8,6 @@ Implements Step I of the PerCE algorithm (Section III-A):
 
 from __future__ import annotations
 
-import warnings
 from typing import Optional
 
 import numpy as np

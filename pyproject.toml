@@ -72,7 +72,10 @@ line-length = 100
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W"]
+select = ["E", "F", "I", "W"]
+# N803/N806 (argument/variable naming) are ignored because X, C, T are
+# standard conventions in scientific Python / machine-learning code.
+ignore = ["N803", "N806"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

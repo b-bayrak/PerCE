@@ -99,7 +99,6 @@ def segment_importance(
     """
     rng = rng or np.random.default_rng(42)
     C, T = X.shape
-    seg_len = T // n_segments
     boundaries = _segment_boundaries(T, n_segments)
 
     base_score = _model_score(model, X)

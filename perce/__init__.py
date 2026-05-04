@@ -9,10 +9,10 @@ Counterfactual Explanations for Multivariate Time Series Classification.
 IEEE Access. DOI: 10.1109/ACCESS.2025.3639125
 """
 
-from .explainer import PerCEExplainer, CounterfactualResult
-from .metrics import proximity, sparsity, validity, diversity, evaluate_batch
-from .neighbors import dtw_distance
+from .explainer import CounterfactualResult, PerCEExplainer
 from .importance import channel_importance, segment_importance
+from .metrics import diversity, evaluate_batch, proximity, sparsity, validity
+from .neighbors import dtw_distance
 
 __version__ = "0.1.0"
 __author__ = "Betül Bayrak"
