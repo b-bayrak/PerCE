@@ -119,24 +119,6 @@ class PerCEExplainer:
     random_state : int or None, default=42
         Random seed for reproducibility.
 
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from perce import PerCEExplainer
-    >>>
-    >>> # Synthetic demo — replace with your real model and data
-    >>> X_train = np.random.randn(200, 12, 4096)
-    >>> y_train = np.random.randint(0, 2, 200)
-    >>>
-    >>> def my_model(X):   # shape (N, C, T) → (N,) class indices
-    ...     return np.zeros(len(X), dtype=int)
-    >>>
-    >>> exp = PerCEExplainer(model=my_model, n_segments=10)
-    >>> exp.fit(X_train, y_train)
-    >>>
-    >>> X_query = X_train[0]   # shape (C, T)
-    >>> result = exp.explain(X_query, target_class=1)
-    >>> print(result.summary())
     """
 
     def __init__(
@@ -162,10 +144,6 @@ class PerCEExplainer:
         self._X_train: Optional[np.ndarray] = None
         self._y_train: Optional[np.ndarray] = None
         self._is_fitted: bool = False
-
-    # ------------------------------------------------------------------
-    # Fit
-    # ------------------------------------------------------------------
 
     def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> "PerCEExplainer":
         """Store training data for InSample candidate selection.
@@ -196,10 +174,6 @@ class PerCEExplainer:
         self._is_fitted = True
         return self
 
-    # ------------------------------------------------------------------
-    # Explain (single instance)
-    # ------------------------------------------------------------------
-
     def explain(
         self,
         X_query: np.ndarray,
@@ -229,7 +203,7 @@ class PerCEExplainer:
         rng = np.random.default_rng(self.random_state)
         C, T = X_query.shape
 
-        # ── Step 1: Feature importance ─────────────────────────────────
+        # Step 1: Feature importance
         ch_imp = channel_importance(
             model=self.model,
             X=X_query,
@@ -244,7 +218,7 @@ class PerCEExplainer:
             rng=rng,
         )
 
-        # ── Step 2: InSample candidate selection ───────────────────────
+        # Step 2: InSample candidate selection
         candidate = find_candidate(
             X_query=X_query,
             X_train=self._X_train,
@@ -254,7 +228,7 @@ class PerCEExplainer:
             dtw_window=self.dtw_window,
         )
 
-        # ── Step 3: Hierarchical perturbation ──────────────────────────
+        # Step 3: Hierarchical perturbation
         cf, channels_modified, segments_modified = hierarchical_perturb(
             X_query=X_query,
             candidate=candidate,
@@ -267,7 +241,7 @@ class PerCEExplainer:
             beta=self.beta,
         )
 
-        # ── Step 4: Evaluate ───────────────────────────────────────────
+        # Step 4: Evaluate
         pred = int(self._predict_single(cf))
         is_val = validity(cf, self.model, target_class)
         prox = proximity(X_query, cf, dtw_window=self.dtw_window)
@@ -335,20 +309,11 @@ class PerCEExplainer:
                 print(f"  Explaining instance {i+1}/{N}...")
             results.append(self.explain(X, tc))
         return results
-
-    # ------------------------------------------------------------------
-    # Diversity across a batch of results
-    # ------------------------------------------------------------------
-
     @staticmethod
     def diversity_score(results: list, dtw_window: float = 0.1) -> float:
         """Compute average pairwise DTW diversity across a list of results."""
         cfs = np.stack([r.counterfactual for r in results])
         return diversity(cfs, dtw_window=dtw_window)
-
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
 
     def _predict_single(self, X: np.ndarray) -> int:
         """Predict class for a single (C, T) instance."""
